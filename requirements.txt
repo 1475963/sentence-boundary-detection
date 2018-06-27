@@ -1,0 +1,8 @@
+beautifulsoup4
+numpy
+matplotlib
+scipy
+nose
+pandas
+scikit-learn
+pylint
