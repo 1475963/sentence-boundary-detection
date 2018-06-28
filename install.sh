@@ -1,3 +1,3 @@
 #!/bin/bash
 
-pip install -U -r requirements.txt
+pip install --user -r requirements.txt

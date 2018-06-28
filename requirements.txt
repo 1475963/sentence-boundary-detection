@@ -5,4 +5,4 @@ scipy
 nose
 pandas
 scikit-learn
-pylint
+pylint==1.8.4
