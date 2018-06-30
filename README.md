@@ -12,3 +12,7 @@ This project was tested with python 3.5.2 using `pyenv`
 ### Preprocess the dataset
 * `python scripts/preprocess.py`
 
+### Train a model from the preprocessed dataset
+* `python scripts/train.py`
+
+
