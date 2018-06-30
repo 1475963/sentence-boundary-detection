@@ -84,7 +84,7 @@ def transform(dataset: List[str], ngramSize: int) -> List[Dict[str, Union[float,
     for m in re.finditer(eosPunctRE, dataset)
   ][:-1]
 
-def split(dataset: List[Dict[str, Union[float, str]]]) -> List[Dict[str, Union[float, str]]]:
+def split(dataset: List[Dict[str, Union[float, str]]]) -> Dict[str, List[dict]]:
   '''Split the dataset to form a training set, a validation set and a testing set
 
   Args:
@@ -107,7 +107,7 @@ def split(dataset: List[Dict[str, Union[float, str]]]) -> List[Dict[str, Union[f
       cuts['train'] + cuts['validation']:cuts['train'] + cuts['validation'] + cuts['test']]
   }
 
-def save(sets: List[Dict[str, Union[float, str]]]) -> None:
+def save(sets: Dict[str, List[dict]]) -> None:
   '''A function to save splitted datasets into disk
 
   Args:
@@ -120,6 +120,9 @@ def save(sets: List[Dict[str, Union[float, str]]]) -> None:
 
 def main(args: argparse.Namespace) -> None:
   '''Main processing function to preprocess our dataset
+
+  Args:
+    args: An argument Namespace
   '''
   # retrieve few samples from the original dataset
   dataset = sample(args.samples)
