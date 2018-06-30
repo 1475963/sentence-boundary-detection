@@ -18,7 +18,7 @@ def main() -> None:
   print('\r-> getting dataset from URL ({}) [OK]'.format(conf.get('ACQUIRE', 'datasetUrl')))
   print('-> unzipping ...', end='')
   zipFd = tarfile.open(conf.get('ACQUIRE', 'datasetZip'), "r:gz")
-  zipFd.extractall(conf.get('ACQUIRE', 'datasetFolder'))
+  zipFd.extractall(conf.get('DATASET', 'datasetFolder'))
   zipFd.close()
   print('\r-> unzipping [OK]')
   print('-> removing compressed file ...', end='')
