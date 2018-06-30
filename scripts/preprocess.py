@@ -120,6 +120,9 @@ def save(sets: List[Dict[str, Union[float, str]]]) -> None:
 
 def main(args: argparse.Namespace) -> None:
   '''Main processing function to preprocess our dataset
+
+  Args:
+    args: An argument Namespace
   '''
   # retrieve few samples from the original dataset
   dataset = sample(args.samples)
