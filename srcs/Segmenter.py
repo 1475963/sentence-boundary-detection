@@ -22,7 +22,21 @@ from sklearn.externals import joblib
 conf = SafeConfigParser()
 conf.read(os.path.join(os.path.dirname(__file__), '..', 'config', 'configuration.ini'))
 
-class Segmenter():
+class Segmenter(object):
+  '''A class to segment text or html into sentences
+
+  Args:
+    ngramSize:  The number of characters used for context tokens,
+                should be the same number as for preprocessing
+    isHtml:     Enable html preprocessing and segmentation
+
+  Attributes:
+    pipeline    (Pipeline):     A chaining object to chain scikit algorithms,
+                                will contain an encoder and a classifier
+    ngramSize   (int):          The number of characters for context tokens
+    isHtml      (bool):         Trigger to enable html preprocessing and segmentation
+    eosPunctRE  (SRE_Pattern):  A regex with end-of-sentence punctuation
+  '''
   def __init__(self, ngramSize: int, isHtml: bool) -> None:
     folderPath = os.path.join(os.path.dirname(__file__), '..', conf.get('MODEL', 'modelFolder'))
     self.pipeline = Pipeline([
@@ -47,32 +61,40 @@ class Segmenter():
     '''
     ngramWindow = math.floor(self.ngramSize / 2)
     tokens = []
-    match = re.finditer(self.eosPunctRE, text)
+    matches = re.finditer(self.eosPunctRE, text)
 
-    for m in match:
-      token = text[m.start() - ngramWindow:m.end() + ngramWindow].replace('\n', ' ').lower()
+    for match in matches:
+      token = text[match.start() - ngramWindow:match.end() + ngramWindow].replace('\n', ' ').lower()
       if len(token) == self.ngramSize:
-        tokens.append((token, m.end()))
+        tokens.append((token, match.end()))
 
     return tokens
 
   def segment(self, text: str) -> Union[List[str], str]:
-    '''
+    '''Takes a text as input, preprocess into to find end-of-sentence tokens in it, predict if
+    the token is an end of sentence. Then split the text into sentences with the selected
+    end-of-sentence tokens and their indexes
+
+    Args:
+      text: Input text to segment
+
+    Returns:
+      A list of sentences or an html block with span tags for each sentence
     '''
     tokens = self.__preprocess(text)
     predictions = self.pipeline.predict(list(zip(*tokens))[0])
+    result = None
 
     if not self.isHtml:
-      sentences = []
+      result = []
       # split text into sentences
       index = 0
       for i, token in enumerate(tokens):
         if predictions[i] == 1:
-          sentences.append(text[index:token[1]].strip())
+          result.append(text[index:token[1]].strip())
           index = token[1]
-      sentences.append(text[index:].strip())
-      return sentences
+      result.append(text[index:].strip())
     else:
       # add span tags around sentences in html content
-      html = ''
-      return html
+      result = text
+    return result

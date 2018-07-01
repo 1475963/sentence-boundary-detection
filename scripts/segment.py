@@ -5,17 +5,10 @@ A python script to segment a text into sentences using the trained encoder and c
 * Print sentences on standard output
 '''
 
-from typing import Tuple, List
 import os
 import re
 import argparse
-import math
 from configparser import SafeConfigParser
-
-from sklearn.pipeline import Pipeline
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.externals import joblib
 
 from srcs.Segmenter import Segmenter
 
