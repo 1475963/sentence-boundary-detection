@@ -23,6 +23,15 @@ You can use the option `-h` on each script to get help indications with the avai
 To modify the input text open the file located here "*datasets/input.txt*" and edit the input text
 * `python scripts/segment.py`
 
+To modify the input HTML open the file located here "*datasets/input.html*" and edit the input HTML
+* `python scripts/segment.py --html`
+
+The manual way to check if tags were inserted at the right place (mosly the end span tag because the start span tag insertion is flawed) is to store the result in a file like that
+* `python scripts/segment.py --html > result.html`
+
+Then you can run the following line to print the lines in the html where span tags were inserted
+* `python scripts/segment.py --html --debug`
+
 # Ideas that will not be tested
 * Tokenization to test the results with words instead of bag of characters
 * If words were used, word embeddings from word2vec, GloVe or fastText could have been used
