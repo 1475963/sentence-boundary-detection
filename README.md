@@ -3,6 +3,7 @@ Detect sentence boundaries using machine learning
 
 # Python version
 This project was tested with python 3.5.2 using `pyenv`
+
 **Add `$(pwd)/srcs/` in your environement variable `PYTHONPATH` otherwise some scripts won't run**
 
 # Dependencies
