@@ -20,12 +20,16 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.externals import joblib
+from keras.models import load_model
 
 conf = SafeConfigParser()
 conf.read(os.path.join(os.path.dirname(__file__), '..', 'config', 'configuration.ini'))
 
-def loadModels() -> Tuple[TfidfVectorizer, MultinomialNB]:
+def loadModels(isRnn: bool) -> Tuple[TfidfVectorizer, MultinomialNB]:
   '''Load the encoder model and the classifier model
+
+  Args:
+    isRnn:  Enable the usage of a recurrent neural network as the classifier
 
   Returns:
     An encoder model object
@@ -35,7 +39,9 @@ def loadModels() -> Tuple[TfidfVectorizer, MultinomialNB]:
 
   return (
     joblib.load(os.path.join(folderPath, conf.get('MODEL', 'encoder'))),
-    joblib.load(os.path.join(folderPath, conf.get('MODEL', 'classifier')))
+    (joblib.load(os.path.join(folderPath, conf.get('MODEL', 'classifier')))
+     if not isRnn
+     else load_model(os.path.join(folderPath, conf.get('MODEL', 'classifier'))))
   )
 
 def loadDataset() -> pd.DataFrame:
@@ -56,7 +62,7 @@ def main(args: argparse.Namespace) -> None:
   Args:
     args: An argument Namespace
   '''
-  encoder, classifier = loadModels()
+  encoder, classifier = loadModels(args.rnn)
   pipeline = Pipeline([('encoder', encoder), ('classifier', classifier)])
   dataset = loadDataset()
 
@@ -70,6 +76,9 @@ def main(args: argparse.Namespace) -> None:
     dataset = pd.concat([neosInstances, eosInstances[:len(neosInstances)]])
 
   predictions = pipeline.predict(dataset['instance'])
+  if args.rnn:
+    predictions = [1.0 if pred > 0.5 else 0.0 for pred in predictions]
+
   report = classification_report(dataset['label'], predictions)
   print(report)
 
@@ -81,6 +90,8 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('--balance', default=False, action='store_const', const=True,
                       help='Use the same number of instances per label value count')
+  parser.add_argument('--rnn', default=False, action='store_const', const=True,
+                      help='Use a recurrent neural network as the architecture to test')
   arguments = parser.parse_args()
   parser.print_help()
   main(arguments)
