@@ -3,15 +3,25 @@ Detect sentence boundaries using machine learning
 
 # Python version
 This project was tested with python 3.5.2 using `pyenv`
+**Add `$(pwd)/srcs/` in your environement variable `PYTHONPATH` otherwise some scripts won't run**
+
+# Dependencies
+Run the following
+* `./install.sh`
+
+# Check code quality with the linter
+* `./linter.sh`
 
 # Usage
 You can use the option `-h` on each script to get help indications with the available options
 
 ## Get the dataset
+(Around one 200Mo compressed, and about 600Mo uncompressed)
+It can take up to 10 minutes to retrieve the dataset from the source (the remote server is slow)
 * `python scripts/acquire.py`
 
 ## Preprocess the dataset
-* `python scripts/preprocess.py [--samples NB_INSTANCES --ngram-size NGRAM_SIZE]`
+* `python scripts/preprocess.py --samples 10000000 [--samples NB_INSTANCES --ngram-size NGRAM_SIZE]`
 
 ## Train a model from the preprocessed dataset
 * `python scripts/train.py [--balance --rnn --epoch NB_EPOCH]`
@@ -35,7 +45,7 @@ Then you can run the following line to print the lines in the html where span ta
 # Tasks that were planned but not achieved
 
 ## Not achieved due to time
-* Do some data science analysis by exploring the dataset, that would have helped to define custom features to add on top of TfIdf vectors.
+* Do some data science analysis by exploring the dataset, that would have helped to define custom features to add on top of TfIdf vectors. And better tune the number of ngrams to use.
 * Write regression tests.
 * Add an option to build a model with both the french and english datasets that I retrieve from `acquire.py` and test that model to see if it is better.
 
