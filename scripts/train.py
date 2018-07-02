@@ -69,7 +69,6 @@ def main(args: argparse.Namespace) -> None:
   '''
   dataset = loadDataset()
   pipeline = buildPipeline()
-  print('pipeline:', pipeline)
 
   eosInstances = dataset[dataset['label'] == 1.0]
   neosInstances = dataset[dataset['label'] == 0.0]
