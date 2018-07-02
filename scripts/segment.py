@@ -17,16 +17,23 @@ conf.read(os.path.join(os.path.dirname(__file__), '..', 'config', 'configuration
 
 eosPunctRE = re.compile(r'[\.?!:;]')
 
-def loadText() -> str:
+def loadText(isHtml: bool) -> str:
   '''Load input text from a file
+
+  Args:
+    isHtml: Enable html processing, retrieve html input if activated
 
   Returns:
     The input text
   '''
   datasetFolderPath = os.path.join(os.path.dirname(__file__), '..',
                                    conf.get('DATASET', 'datasetFolder'))
+  if isHtml:
+    textFile = os.path.join(datasetFolderPath, conf.get('DATASET', 'htmlInput'))
+  else:
+    textFile = os.path.join(datasetFolderPath, conf.get('DATASET', 'input'))
   content = ''
-  with open(os.path.join(datasetFolderPath, conf.get('DATASET', 'input')), 'r') as inputFd:
+  with open(textFile, 'r') as inputFd:
     content = inputFd.read()
   return content
 
@@ -36,12 +43,16 @@ def main(args: argparse.Namespace) -> None:
   Args:
     args: An argument Namespace
   '''
-  text = loadText()
+  text = loadText(args.html)
   segmenter = Segmenter(args.ngram_size, args.html)
-  sentences = segmenter.segment(text)
+  result = segmenter.segment(text)
 
-  for sentence in sentences:
-    print(sentence)
+  if result:
+    if not args.html:
+      for sentence in result:
+        print(sentence)
+    else:
+      print(result)
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()

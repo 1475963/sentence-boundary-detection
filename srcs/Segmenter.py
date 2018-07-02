@@ -15,12 +15,37 @@ import os
 import math
 import re
 from configparser import SafeConfigParser
+from html.parser import HTMLParser
 
 from sklearn.pipeline import Pipeline
 from sklearn.externals import joblib
 
 conf = SafeConfigParser()
 conf.read(os.path.join(os.path.dirname(__file__), '..', 'config', 'configuration.ini'))
+
+class TextIndexParser(HTMLParser):
+  def __init__(self, *args, **kwargs) -> None:
+    self.lines = []
+    super(TextIndexParser, self).__init__(*args, **kwargs)
+
+  def handle_data(self, data: str) -> None:
+    if data.strip():
+      start = self.getpos()
+      end = (start[0], start[1] + len(data))
+      self.lines.append((data, start, end))
+
+  def clear(self) -> None:
+    self.lines = []
+
+def yxToIndex(y: int, x: int, htmlLines: List[str]) -> int:
+  index = 0
+  j = 0
+
+  while j < y:
+    index += len(htmlLines[j]) + 1
+    j += 1
+
+  return index + x
 
 class Segmenter(object):
   '''A class to segment text or html into sentences
@@ -46,6 +71,7 @@ class Segmenter(object):
     self.ngramSize = ngramSize
     self.isHtml = isHtml
     self.eosPunctRE = re.compile(r'[\.?!:;]')
+    self.removeHtmlIndexText = TextIndexParser()
 
   def __preprocess(self, text: str) -> List[Tuple[str, int]]:
     '''Preprocessing function, retrieve only tokens that are eligible as end of sentences and cut a
@@ -65,6 +91,9 @@ class Segmenter(object):
 
     for match in matches:
       token = text[match.start() - ngramWindow:match.end() + ngramWindow].replace('\n', ' ').lower()
+      # custom right padding
+      while len(token) < self.ngramSize:
+        token = token + ' '
       if len(token) == self.ngramSize:
         tokens.append((token, match.end()))
 
@@ -81,11 +110,16 @@ class Segmenter(object):
     Returns:
       A list of sentences or an html block with span tags for each sentence
     '''
-    tokens = self.__preprocess(text)
-    predictions = self.pipeline.predict(list(zip(*tokens))[0])
     result = None
 
     if not self.isHtml:
+      tokens = self.__preprocess(text)
+
+      if not tokens:
+        return result
+
+      predictions = self.pipeline.predict(list(zip(*tokens))[0])
+
       result = []
       # split text into sentences
       index = 0
@@ -95,6 +129,35 @@ class Segmenter(object):
           index = token[1]
       result.append(text[index:].strip())
     else:
-      # add span tags around sentences in html content
+      # Build a list of indexes to then insert span tags at these indexes
       result = text
+      htmlByLine = text.split('\n')
+      self.removeHtmlIndexText.feed(text)
+      textIndexes = self.removeHtmlIndexText.lines
+      self.removeHtmlIndexText.clear()
+
+      offset = 0
+      startSentence = 0
+
+      for textIndex in textIndexes:
+        tokens = self.__preprocess(textIndex[0])
+        if not tokens:
+          continue
+
+        predictions = self.pipeline.predict(list(zip(*tokens))[0])
+
+        for i, token in enumerate(tokens):
+          if predictions[i] == 1:
+            # Consider that the end of the previous sentence is the beginning of a new one, even if
+            # this assumption is false in an html file
+            result = result[:startSentence] + '<span>' + result[startSentence:]
+            offset += len('<span>')
+            # Find the index in the original html from the splitted html and the token classified
+            xyIndex = yxToIndex(textIndex[1][0] - 1, textIndex[1][1] + token[1] - 1, htmlByLine)
+            # Add the end of sentence span
+            result = result[:xyIndex + offset + 1] + '</span>' + result[xyIndex + offset + 1:]
+            offset += len('</span>')
+            # Update the start of sentence index
+            startSentence = xyIndex + offset + 1
+
     return result
