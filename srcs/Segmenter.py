@@ -99,13 +99,14 @@ class Segmenter(object):
 
     return tokens
 
-  def segment(self, text: str) -> Union[List[str], str]:
+  def segment(self, text: str, debug: bool) -> Union[List[str], str]:
     '''Takes a text as input, preprocess into to find end-of-sentence tokens in it, predict if
     the token is an end of sentence. Then split the text into sentences with the selected
     end-of-sentence tokens and their indexes
 
     Args:
-      text: Input text to segment
+      text:   Input text to segment
+      debug:  Enables span insertion debugging
 
     Returns:
       A list of sentences or an html block with span tags for each sentence
@@ -148,6 +149,8 @@ class Segmenter(object):
 
         for i, token in enumerate(tokens):
           if predictions[i] == 1:
+            if debug:
+              print('Line index: {}\nContent: {}'.format(textIndex[1][0], textIndex[0]))
             # Consider that the end of the previous sentence is the beginning of a new one, even if
             # this assumption is false in an html file
             result = result[:startSentence] + '<span>' + result[startSentence:]

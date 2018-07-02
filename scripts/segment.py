@@ -45,9 +45,9 @@ def main(args: argparse.Namespace) -> None:
   '''
   text = loadText(args.html)
   segmenter = Segmenter(args.ngram_size, args.html)
-  result = segmenter.segment(text)
+  result = segmenter.segment(text, args.debug)
 
-  if result:
+  if result and not args.debug:
     if not args.html:
       for sentence in result:
         print(sentence)
@@ -59,5 +59,7 @@ if __name__ == '__main__':
   parser.add_argument('--ngram-size', default=5, type=int, help='Character ngram size')
   parser.add_argument('--html', default=False, action='store_const', const=True,
                       help='Enable the html processing of the text')
+  parser.add_argument('--debug', default=False, action='store_const', const=True,
+                      help='Enable prompt debugging of the html feature')
   arguments = parser.parse_args()
   main(arguments)
