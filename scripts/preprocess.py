@@ -94,11 +94,7 @@ def split(dataset: List[Dict[str, Union[float, str]]]) -> Dict[str, List[dict]]:
     A dict of datasets
   '''
   proportions = {'train': .7, 'validation': .1, 'test': .2}
-  cuts = {
-    'train': round(len(dataset) * proportions['train']),
-    'validation': round(len(dataset) * proportions['validation']),
-    'test': round(len(dataset) * proportions['test'])
-  }
+  cuts = {setName:round(len(dataset) * proportion) for setName, proportion in proportions.items()}
 
   return {
     'train': dataset[:cuts['train']],
