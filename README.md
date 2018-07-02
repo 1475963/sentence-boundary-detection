@@ -1,5 +1,5 @@
 # sentence-boundary-detection
-Detect sentence boundaries using machine learning
+Detect sentence boundaries using machine learning, a Naïve Bayes algorithm is used, you can also train a LSTM with the option `-rnn` however it is too long to train to achieve decent results.
 
 # Python version
 This project was tested with python 3.5.2 using `pyenv`
