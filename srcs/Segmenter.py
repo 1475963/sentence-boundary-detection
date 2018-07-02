@@ -24,28 +24,56 @@ conf = SafeConfigParser()
 conf.read(os.path.join(os.path.dirname(__file__), '..', 'config', 'configuration.ini'))
 
 class TextIndexParser(HTMLParser):
+  '''A class to parse HTML content, retrieve the inner content of tags
+
+  Attributes:
+    lines (list): A list of strings, each string is the inner content of a pair of tags
+  '''
   def __init__(self, *args, **kwargs) -> None:
     self.lines = []
     super(TextIndexParser, self).__init__(*args, **kwargs)
 
   def handle_data(self, data: str) -> None:
+    '''Function called at each tag, store each inner content with its start and end position
+
+    Args:
+      data: A tag inner content
+    '''
     if data.strip():
       start = self.getpos()
       end = (start[0], start[1] + len(data))
       self.lines.append((data, start, end))
 
   def clear(self) -> None:
+    '''Reset the internal storage of tags inner content
+    '''
     self.lines = []
 
-def yxToIndex(y: int, x: int, htmlLines: List[str]) -> int:
+  def error(self) -> None:
+    '''Overwritten because the linter would print errors, however the function is not documentated
+    in the standard api, that's why it is empty
+    '''
+    pass
+
+def yxToIndex(yIndex: int, xIndex: int, htmlLines: List[str]) -> int:
+  '''Transform a (y, x) index into a flat index in the raw html content
+
+  Args:
+    yIndex:     A line index
+    xIndex:     A character index within a line
+    htmlLines:  Html content split by new line
+
+  Returns:
+    An index in the raw html content
+  '''
   index = 0
   j = 0
 
-  while j < y:
+  while j < yIndex:
     index += len(htmlLines[j]) + 1
     j += 1
 
-  return index + x
+  return index + xIndex
 
 class Segmenter(object):
   '''A class to segment text or html into sentences
