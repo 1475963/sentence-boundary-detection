@@ -8,7 +8,7 @@ A python script to test a model trained with the `training.py` script.
   such as precision, recall, f1_score
 '''
 
-from typing import Tuple
+from typing import Tuple, Union
 import os
 import argparse
 from configparser import SafeConfigParser
@@ -21,11 +21,12 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.externals import joblib
 from keras.models import load_model
+from keras.models import Sequential
 
 conf = SafeConfigParser()
 conf.read(os.path.join(os.path.dirname(__file__), '..', 'config', 'configuration.ini'))
 
-def loadModels(isRnn: bool) -> Tuple[TfidfVectorizer, MultinomialNB]:
+def loadModels(isRnn: bool) -> Tuple[TfidfVectorizer, Union[MultinomialNB, Sequential]]:
   '''Load the encoder model and the classifier model
 
   Args:
