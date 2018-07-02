@@ -11,17 +11,17 @@ You can use the option `-h` on each script to get help indications with the avai
 * `python scripts/acquire.py`
 
 ## Preprocess the dataset
-* `python scripts/preprocess.py`
+* `python scripts/preprocess.py [--samples NB_INSTANCES --ngram-size NGRAM_SIZE]`
 
 ## Train a model from the preprocessed dataset
-* `python scripts/train.py`
+* `python scripts/train.py [--balance --rnn --epoch NB_EPOCH]`
 
 ## Test the model after training it
-* `python scripts/test.py`
+* `python scripts/test.py [--balance --rnn]`
 
 ## Segment an input text into sentences
 To modify the input text open the file located here "*datasets/input.txt*" and edit the input text
-* `python scripts/segment.py`
+* `python scripts/segment.py [--ngram-size NGRAM_SIZE --html --debug]`
 
 To modify the input HTML open the file located here "*datasets/input.html*" and edit the input HTML
 * `python scripts/segment.py --html`
@@ -32,7 +32,20 @@ The manual way to check if tags were inserted at the right place (mosly the end 
 Then you can run the following line to print the lines in the html where span tags were inserted
 * `python scripts/segment.py --html --debug`
 
+# Tasks that were planned but not achieved
+
+## Not achieved due to time
+* Do some data science analysis by exploring the dataset, that would have helped to define custom features to add on top of TfIdf vectors.
+* Write regression tests.
+* Add an option to build a model with both the french and english datasets that I retrieve from `acquire.py` and test that model to see if it is better.
+
+## Not achieved due to technical issues
+* Build a decent model with an LSTM architecture, all models that I built were not decent due to the training time required to feed a nice portion of the dataset
+* Due to the training time I didn't use matplotlib to plot training scores on the evaluation dataset.
+* Hyperparameters optimization, it is not needed for a Naive Bayes nor a TfIdf because there is too few parameters to tune. However it would have been useful with a neural network.
+
 # Ideas that will not be tested
+
 * Tokenization to test the results with words instead of bag of characters
 * If words were used, word embeddings from word2vec, GloVe or fastText could have been used
 * Also if I were using words I could have tested the effect of part of speech tagging
